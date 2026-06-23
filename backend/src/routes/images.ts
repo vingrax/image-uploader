@@ -11,7 +11,8 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/heic'];
-    cb(null, allowed.includes(file.mimetype));
+    const isHeicByExtension = file.originalname.toLowerCase().endsWith('.heic');
+    cb(null, allowed.includes(file.mimetype) || isHeicByExtension);
   },
 });
 
@@ -19,7 +20,12 @@ router.post('/', upload.single('image'), async (req, res, next: NextFunction) =>
   try {
     if (!req.file) return res.status(400).json({ error: 'No valid image file provided' });
 
-    const { buffer, originalname, mimetype, size } = req.file;
+    const { buffer, originalname, size } = req.file;
+    const mimetype =
+      (req.file.mimetype === '' || req.file.mimetype === 'application/octet-stream') &&
+      originalname.toLowerCase().endsWith('.heic')
+        ? 'image/heic'
+        : req.file.mimetype;
     const { url, publicId } = await uploadToCloudinary(buffer, originalname);
 
     const image = await prisma.image.create({
