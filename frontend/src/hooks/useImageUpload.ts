@@ -7,7 +7,12 @@ export function useImageUpload() {
   const polls = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
   useEffect(() => {
-    listImages().then(setImages).catch(console.error);
+    listImages()
+      .then((imgs) => {
+        setImages(imgs);
+        imgs.filter((img) => img.status === 'PROCESSING').forEach((img) => startPolling(img.id));
+      })
+      .catch(console.error);
     return () => polls.current.forEach(clearInterval);
   }, []);
 

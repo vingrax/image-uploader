@@ -4,7 +4,8 @@ const MIN_DIMENSION = 300;
 const MIN_FILE_SIZE = 50 * 1024;
 
 export async function checkSize(
-  buffer: Buffer
+  buffer: Buffer,
+  originalFileSize?: number
 ): Promise<{ passed: boolean; reason?: string; width: number; height: number }> {
   const metadata = await sharp(buffer).metadata();
   const width = metadata.width ?? 0;
@@ -19,7 +20,8 @@ export async function checkSize(
     };
   }
 
-  if (buffer.length < MIN_FILE_SIZE) {
+  const sizeToCheck = originalFileSize ?? buffer.length;
+  if (sizeToCheck < MIN_FILE_SIZE) {
     return {
       passed: false,
       reason: 'Image file size too small (minimum 50KB)',

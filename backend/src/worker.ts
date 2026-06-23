@@ -21,7 +21,7 @@ async function processImage(data: ImageJobData): Promise<void> {
     const raw = await fetchBuffer(cloudinaryUrl);
     const buffer = await convertToJpeg(raw, mimeType);
 
-    const sizeResult = await checkSize(buffer);
+    const sizeResult = await checkSize(buffer, data.fileSize);
     if (!sizeResult.passed) {
       await prisma.image.update({
         where: { id: imageId },

@@ -20,11 +20,12 @@ export async function computeDHash(buffer: Buffer): Promise<string> {
 }
 
 export function hammingDistance(a: string, b: string): number {
-  let distance = 0;
-  for (let i = 0; i < Math.min(a.length, b.length); i++) {
-    if (a[i] !== b[i]) distance++;
+  if (a.length !== b.length) throw new Error(`Hash length mismatch: ${a.length} vs ${b.length}`);
+  let dist = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) dist++;
   }
-  return distance;
+  return dist;
 }
 
 export async function checkSimilarity(

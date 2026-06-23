@@ -10,14 +10,17 @@ const MODEL_PATH = path.join(
 );
 const FACE_AREA_THRESHOLD = 0.10;
 
-let modelsLoaded = false;
+let loadPromise: Promise<void> | null = null;
 
-export async function loadFaceModels(): Promise<void> {
-  if (modelsLoaded) return;
+export function loadFaceModels(): Promise<void> {
+  if (!loadPromise) loadPromise = _doLoad();
+  return loadPromise;
+}
+
+async function _doLoad(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (faceapi.tf as any).ready();
   await faceapi.nets.ssdMobilenetv1.loadFromDisk(MODEL_PATH);
-  modelsLoaded = true;
 }
 
 export async function checkFaces(

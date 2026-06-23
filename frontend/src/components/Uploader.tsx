@@ -22,7 +22,8 @@ export default function Uploader({ onUploaded }: Props) {
       return;
     }
     setError(null);
-    if (file.type === 'image/heic') {
+    const isHeic = file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic');
+    if (isHeic) {
       setPendingHeic(file);
     } else {
       doUpload(file);
