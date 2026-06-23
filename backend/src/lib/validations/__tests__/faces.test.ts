@@ -1,5 +1,3 @@
-jest.mock('@tensorflow/tfjs', () => ({}));
-
 jest.mock('sharp', () => {
   return jest.fn().mockReturnValue({
     resize: jest.fn().mockReturnThis(),
@@ -11,7 +9,7 @@ jest.mock('sharp', () => {
   });
 });
 
-jest.mock('@vladmandic/face-api', () => ({
+jest.mock('@vladmandic/face-api/dist/face-api.node-wasm.js', () => ({
   nets: { ssdMobilenetv1: { loadFromDisk: jest.fn().mockResolvedValue(undefined) } },
   detectAllFaces: jest.fn(),
   SsdMobilenetv1Options: jest.fn().mockImplementation(() => ({})),
@@ -20,7 +18,8 @@ jest.mock('@vladmandic/face-api', () => ({
   },
 }));
 
-import * as faceapi from '@vladmandic/face-api';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const faceapi = require('@vladmandic/face-api/dist/face-api.node-wasm.js');
 import { checkFaces } from '../faces';
 
 const mockDetect = faceapi.detectAllFaces as jest.Mock;
@@ -53,7 +52,7 @@ describe('checkFaces', () => {
   });
 
   it('rejects when face area is less than 10% of image', async () => {
-    // 20×20 = 400px² / (400×400=160000px²) = 0.0025 < 0.10
+    // 20×20 = 400px² / (640×480=307200px²) = 0.0013 < 0.10
     mockFaces([{ width: 20, height: 20 }]);
     const r = await checkFaces(FAKE, 400, 400);
     expect(r.passed).toBe(false);
@@ -61,7 +60,7 @@ describe('checkFaces', () => {
   });
 
   it('accepts one adequately-sized face', async () => {
-    // 250×250 = 62500px² / 160000px² = 0.39 > 0.10
+    // 250×250 = 62500px² / (640×480=307200px²) = 0.20 > 0.10
     mockFaces([{ width: 250, height: 250 }]);
     const r = await checkFaces(FAKE, 400, 400);
     expect(r.passed).toBe(true);

@@ -1,11 +1,12 @@
-import '@tensorflow/tfjs'; // register CPU backend
-import * as faceapi from '@vladmandic/face-api';
+import type * as FaceApi from '@vladmandic/face-api';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const faceapi = require('@vladmandic/face-api/dist/face-api.node-wasm.js') as typeof FaceApi;
 import sharp from 'sharp';
 import path from 'path';
 
 const MODEL_PATH = path.join(
   __dirname,
-  '../../../../node_modules/@vladmandic/face-api/model'
+  '../../../node_modules/@vladmandic/face-api/model'
 );
 const FACE_AREA_THRESHOLD = 0.10;
 
@@ -13,6 +14,8 @@ let modelsLoaded = false;
 
 export async function loadFaceModels(): Promise<void> {
   if (modelsLoaded) return;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (faceapi.tf as any).ready();
   await faceapi.nets.ssdMobilenetv1.loadFromDisk(MODEL_PATH);
   modelsLoaded = true;
 }
@@ -33,7 +36,7 @@ export async function checkFaces(
   try {
     detections = await faceapi
       .detectAllFaces(
-        tensor as unknown as faceapi.TNetInput,
+        tensor as unknown as FaceApi.TNetInput,
         new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 })
       )
       .run();
