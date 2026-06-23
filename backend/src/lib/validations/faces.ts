@@ -52,7 +52,7 @@ export async function checkFaces(
   }
 
   const { box } = detections[0];
-  const ratio = (box.width * box.height) / (imageWidth * imageHeight);
+  const ratio = (box.width * box.height) / (info.width * info.height);
 
   if (ratio < FACE_AREA_THRESHOLD) {
     return { passed: false, reason: 'Face too small in the image', faceCount };
